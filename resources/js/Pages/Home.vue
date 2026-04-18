@@ -1,48 +1,40 @@
 <script setup>
+import { computed } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 
-const services = [
-    {
-        title: 'Private Dining',
-        description: 'Intimate, chef-curated dinners in your home for two to twenty guests.',
-    },
-    {
-        title: 'Weekly Meal Prep',
-        description: 'Wholesome, chef-plated meals delivered weekly across Port Harcourt.',
-    },
-    {
-        title: 'Event Catering',
-        description: 'Bespoke menus for engagements, birthdays, and intimate celebrations.',
-    },
-];
+const props = defineProps({
+    featuredServices: { type: Array, default: () => [] },
+    weeklyMenu: { type: Array, default: () => [] },
+    featuredTestimonials: { type: Array, default: () => [] },
+    latestPosts: { type: Array, default: () => [] },
+    settings: { type: Object, default: () => ({}) },
+});
 
-const weeklyMenu = [
-    { name: 'Jollof Risotto', tag: 'Signature' },
-    { name: 'Pepper Grilled Snapper', tag: 'Coastal' },
-    { name: 'Plantain Gnocchi', tag: 'Seasonal' },
-    { name: 'Suya Spiced Lamb', tag: 'Chef\u2019s Pick' },
-];
+const nairaFormatter = new Intl.NumberFormat('en-NG', {
+    style: 'currency',
+    currency: 'NGN',
+    maximumFractionDigits: 0,
+});
 
-const testimonials = [
-    {
-        quote: 'Eureka turned our anniversary into the most memorable evening we have ever had. Every course was a story.',
-        name: 'Amaka & Tobi',
-        role: 'Private Dinner, GRA',
-    },
-    {
-        quote: 'The weekly meal prep has genuinely changed how our family eats. Beautifully plated, deeply flavorful.',
-        name: 'Dr. Ifeanyi',
-        role: 'Meal Prep Client',
-    },
-];
+const formatNaira = (value) => nairaFormatter.format(Number(value ?? 0));
+
+const storageUrl = (path) => (path ? `/storage/${path}` : null);
+
+const formattedDate = (iso) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
+const hasPosts = computed(() => props.latestPosts.length > 0);
 </script>
 
 <template>
-    <Head title="Blue Dine Cuisines - Private Dining, Reimagined" />
+    <Head title="Blue Dine Cuisines — Private Dining, Reimagined" />
 
     <PublicLayout>
-        <section class="relative min-h-screen flex items-center">
+        <section class="relative min-h-[85vh] flex items-center">
             <div class="absolute inset-0 bg-primary"></div>
             <div class="absolute inset-0 bg-gradient-to-br from-charcoal/90 via-primary/80 to-charcoal/90"></div>
 
@@ -66,7 +58,7 @@ const testimonials = [
                             Book Now
                         </Link>
                         <Link
-                            href="/menu"
+                            :href="route('menu')"
                             class="inline-flex items-center justify-center px-7 py-3.5 rounded-full border border-cream/40 text-cream font-semibold hover:border-accent hover:text-accent transition"
                         >
                             View Menu
@@ -82,21 +74,36 @@ const testimonials = [
                     <p class="uppercase tracking-[0.3em] text-xs text-accent mb-3">What we do</p>
                     <h2 class="font-serif text-4xl text-primary">Services</h2>
                 </div>
-                <div class="grid gap-6 md:grid-cols-3">
-                    <div
-                        v-for="service in services"
-                        :key="service.title"
-                        class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition border border-primary/5"
+                <div v-if="featuredServices.length" class="grid gap-6 md:grid-cols-3">
+                    <Link
+                        v-for="service in featuredServices"
+                        :key="service.id"
+                        :href="route('services.show', service.slug)"
+                        class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition border border-primary/5 flex flex-col"
                     >
-                        <div class="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-5">
-                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v12m6-6H6" />
-                            </svg>
+                        <div class="aspect-[4/3] bg-primary/10 overflow-hidden">
+                            <img
+                                v-if="service.image"
+                                :src="storageUrl(service.image)"
+                                :alt="service.title"
+                                class="h-full w-full object-cover group-hover:scale-105 transition"
+                            />
+                            <div v-else class="h-full w-full flex items-center justify-center text-primary/30">
+                                <svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 7h16M4 12h16M4 17h16" />
+                                </svg>
+                            </div>
                         </div>
-                        <h3 class="font-serif text-xl text-primary mb-3">{{ service.title }}</h3>
-                        <p class="text-sm text-charcoal/70 leading-relaxed">{{ service.description }}</p>
-                    </div>
+                        <div class="p-7 flex-1 flex flex-col">
+                            <h3 class="font-serif text-xl text-primary mb-3 group-hover:text-accent transition">{{ service.title }}</h3>
+                            <p class="text-sm text-charcoal/70 leading-relaxed flex-1">{{ service.short_description }}</p>
+                            <p class="mt-6 text-sm font-semibold text-primary">
+                                From {{ formatNaira(service.base_price) }}
+                            </p>
+                        </div>
+                    </Link>
                 </div>
+                <p v-else class="text-charcoal/60">Services coming soon.</p>
             </div>
         </section>
 
@@ -108,56 +115,97 @@ const testimonials = [
                         <h2 class="font-serif text-4xl text-primary">This Week&rsquo;s Menu</h2>
                     </div>
                     <Link
-                        href="/menu"
+                        :href="route('menu')"
                         class="text-sm font-semibold text-primary hover:text-accent transition"
                     >
                         View full menu &rarr;
                     </Link>
                 </div>
-                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div v-if="weeklyMenu.length" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     <article
                         v-for="dish in weeklyMenu"
-                        :key="dish.name"
+                        :key="dish.id"
                         class="group rounded-2xl overflow-hidden bg-cream border border-primary/5"
                     >
-                        <div class="aspect-[4/3] bg-primary/10 flex items-center justify-center text-primary/40">
-                            <svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 7h16M4 12h16M4 17h16" />
-                            </svg>
+                        <div class="aspect-[4/3] bg-primary/10 overflow-hidden">
+                            <img
+                                v-if="dish.photo"
+                                :src="storageUrl(dish.photo)"
+                                :alt="dish.name"
+                                class="h-full w-full object-cover group-hover:scale-105 transition"
+                            />
+                            <div v-else class="h-full w-full flex items-center justify-center text-primary/30">
+                                <svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 7h16M4 12h16M4 17h16" />
+                                </svg>
+                            </div>
                         </div>
                         <div class="p-5">
-                            <p class="uppercase tracking-widest text-[10px] text-accent mb-1">{{ dish.tag }}</p>
+                            <p class="uppercase tracking-widest text-[10px] text-accent mb-1">{{ dish.category?.replace('_', ' ') }}</p>
                             <h3 class="font-serif text-lg text-primary">{{ dish.name }}</h3>
+                            <p class="mt-2 text-sm font-semibold text-primary/80">{{ formatNaira(dish.price) }}</p>
                         </div>
                     </article>
                 </div>
+                <p v-else class="text-charcoal/60">Menu updates Monday morning.</p>
             </div>
         </section>
 
-        <section class="py-20 bg-primary text-cream">
+        <section v-if="featuredTestimonials.length" class="py-20 bg-primary text-cream">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="max-w-2xl mb-12">
                     <p class="uppercase tracking-[0.3em] text-xs text-accent mb-3">Kind Words</p>
                     <h2 class="font-serif text-4xl">What clients say</h2>
                 </div>
-                <div class="grid gap-6 md:grid-cols-2">
+                <div class="grid gap-6 md:grid-cols-3">
                     <figure
-                        v-for="t in testimonials"
-                        :key="t.name"
+                        v-for="t in featuredTestimonials"
+                        :key="t.id"
                         class="bg-cream/5 rounded-2xl p-8 border border-cream/10"
                     >
                         <svg class="h-8 w-8 text-accent mb-4" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M7.17 6A5.17 5.17 0 0 0 2 11.17V18h6.83v-6.83H5.17A2 2 0 0 1 7.17 9V6zm10 0A5.17 5.17 0 0 0 12 11.17V18h6.83v-6.83h-3.66A2 2 0 0 1 17.17 9V6z"/>
                         </svg>
-                        <blockquote class="font-serif text-xl leading-relaxed text-cream/90">
+                        <blockquote class="font-serif text-lg leading-relaxed text-cream/90">
                             &ldquo;{{ t.quote }}&rdquo;
                         </blockquote>
                         <figcaption class="mt-6 text-sm text-cream/70">
-                            <span class="font-semibold text-cream">{{ t.name }}</span>
-                            <span class="mx-2">&middot;</span>
-                            <span>{{ t.role }}</span>
+                            <span class="font-semibold text-cream">{{ t.client_name }}</span>
                         </figcaption>
                     </figure>
+                </div>
+            </div>
+        </section>
+
+        <section v-if="hasPosts" class="py-20 bg-cream">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12 gap-4">
+                    <div>
+                        <p class="uppercase tracking-[0.3em] text-xs text-accent mb-3">Journal</p>
+                        <h2 class="font-serif text-4xl text-primary">From the Kitchen</h2>
+                    </div>
+                </div>
+                <div class="grid gap-6 md:grid-cols-3">
+                    <article
+                        v-for="post in latestPosts"
+                        :key="post.id"
+                        class="bg-white rounded-2xl overflow-hidden border border-primary/5"
+                    >
+                        <div class="aspect-[16/9] bg-primary/10">
+                            <img
+                                v-if="post.cover_image"
+                                :src="storageUrl(post.cover_image)"
+                                :alt="post.title"
+                                class="h-full w-full object-cover"
+                            />
+                        </div>
+                        <div class="p-6">
+                            <p class="uppercase tracking-widest text-[10px] text-accent mb-2">{{ post.category }}</p>
+                            <h3 class="font-serif text-lg text-primary leading-snug mb-2">{{ post.title }}</h3>
+                            <p class="text-sm text-charcoal/70 leading-relaxed">{{ post.excerpt }}</p>
+                            <p class="mt-4 text-xs text-charcoal/50">{{ formattedDate(post.published_at) }}</p>
+                        </div>
+                    </article>
                 </div>
             </div>
         </section>
