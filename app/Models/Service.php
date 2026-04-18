@@ -12,6 +12,7 @@ class Service extends Model
         'slug',
         'short_description',
         'long_description',
+        'included_items',
         'base_price',
         'image',
         'sort_order',
@@ -19,6 +20,7 @@ class Service extends Model
     ];
 
     protected $casts = [
+        'included_items' => 'array',
         'base_price' => 'decimal:2',
         'sort_order' => 'integer',
         'is_active' => 'boolean',

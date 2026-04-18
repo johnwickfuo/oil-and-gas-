@@ -40,6 +40,15 @@ class ServiceResource extends Resource
             Forms\Components\RichEditor::make('long_description')
                 ->required()
                 ->columnSpanFull(),
+            Forms\Components\Repeater::make('included_items')
+                ->label("What's included")
+                ->simple(
+                    Forms\Components\TextInput::make('item')
+                        ->required()
+                        ->maxLength(255)
+                )
+                ->defaultItems(0)
+                ->columnSpanFull(),
             Forms\Components\TextInput::make('base_price')
                 ->required()
                 ->numeric()
