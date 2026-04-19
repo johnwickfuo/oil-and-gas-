@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+import { Link, useForm, usePage } from '@inertiajs/vue3';
 
 const mobileOpen = ref(false);
 
@@ -14,8 +14,30 @@ const navLinks = [
     { label: 'Recipes', href: '/recipes' },
 ];
 
+const footerExtraLinks = [
+    { label: 'Resources', href: '/resources' },
+    { label: 'Academy', href: '/academy' },
+    { label: 'Contact', href: '/contact' },
+];
+
 const whatsappNumber = import.meta.env.VITE_WHATSAPP_NUMBER || '';
 const whatsappHref = `https://wa.me/${whatsappNumber}`;
+
+const page = usePage();
+const newsletterForm = useForm({
+    email: '',
+    source: 'footer',
+    website: '',
+});
+
+const newsletterStatus = computed(() => page.props.flash?.status || '');
+
+function subscribeNewsletter() {
+    newsletterForm.post(route('newsletter.subscribe'), {
+        preserveScroll: true,
+        onSuccess: () => newsletterForm.reset(),
+    });
+}
 
 const closeMobile = () => (mobileOpen.value = false);
 
@@ -154,6 +176,11 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleEsc));
                                     {{ link.label }}
                                 </Link>
                             </li>
+                            <li v-for="link in footerExtraLinks" :key="link.href">
+                                <Link :href="link.href" class="hover:text-accent transition">
+                                    {{ link.label }}
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 
@@ -171,17 +198,34 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleEsc));
                         <p class="text-sm text-cream/80 mb-4">
                             Seasonal menus and event announcements in your inbox.
                         </p>
-                        <form class="flex flex-col gap-3" @submit.prevent>
+                        <p v-if="newsletterStatus" class="mb-3 rounded-lg bg-accent/15 border border-accent/30 px-3 py-2 text-xs text-cream">
+                            {{ newsletterStatus }}
+                        </p>
+                        <form class="flex flex-col gap-3" @submit.prevent="subscribeNewsletter">
                             <input
+                                v-model="newsletterForm.website"
+                                type="text"
+                                class="sr-only"
+                                tabindex="-1"
+                                autocomplete="off"
+                                aria-hidden="true"
+                            />
+                            <input
+                                v-model="newsletterForm.email"
                                 type="email"
+                                required
                                 placeholder="you@example.com"
                                 class="w-full rounded-full border-0 bg-cream/10 px-4 py-2.5 text-sm text-cream placeholder:text-cream/50 focus:ring-2 focus:ring-accent"
                             />
+                            <p v-if="newsletterForm.errors.email" class="text-xs text-red-300">
+                                {{ newsletterForm.errors.email }}
+                            </p>
                             <button
                                 type="submit"
-                                class="rounded-full bg-accent text-charcoal font-semibold text-sm px-4 py-2.5 hover:bg-accent/90 transition"
+                                :disabled="newsletterForm.processing"
+                                class="rounded-full bg-accent text-charcoal font-semibold text-sm px-4 py-2.5 hover:bg-accent/90 transition disabled:opacity-60"
                             >
-                                Subscribe
+                                {{ newsletterForm.processing ? 'Subscribing…' : 'Subscribe' }}
                             </button>
                         </form>
                     </div>

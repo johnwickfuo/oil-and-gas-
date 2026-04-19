@@ -33,5 +33,7 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('bookings', fn (Request $request) => Limit::perHour(5)->by($request->ip()));
         RateLimiter::for('contact', fn (Request $request) => Limit::perHour(10)->by($request->ip()));
+        RateLimiter::for('downloads', fn (Request $request) => Limit::perHour(30)->by($request->ip()));
+        RateLimiter::for('newsletter', fn (Request $request) => Limit::perHour(10)->by($request->ip()));
     }
 }
