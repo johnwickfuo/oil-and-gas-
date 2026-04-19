@@ -16,6 +16,7 @@ const form = useForm({
     email: '',
     phone: '',
     message: '',
+    website: '',
 });
 
 const submit = () => {
@@ -51,6 +52,10 @@ const submit = () => {
                         {{ flashStatus }}
                     </div>
                     <form class="grid gap-5" @submit.prevent="submit">
+                        <div class="sr-only" aria-hidden="true">
+                            <label for="website">Website</label>
+                            <input id="website" v-model="form.website" type="text" tabindex="-1" autocomplete="off" />
+                        </div>
                         <div class="grid sm:grid-cols-2 gap-5">
                             <div>
                                 <label for="name" class="block text-xs uppercase tracking-widest text-charcoal/60 mb-2">Name</label>

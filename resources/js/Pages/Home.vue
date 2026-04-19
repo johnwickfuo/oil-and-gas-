@@ -52,7 +52,7 @@ const hasPosts = computed(() => props.latestPosts.length > 0);
                     </p>
                     <div class="mt-10 flex flex-col sm:flex-row gap-4">
                         <Link
-                            href="/book"
+                            :href="route('booking.create')"
                             class="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-accent text-charcoal font-semibold shadow-lg hover:bg-accent/90 transition"
                         >
                             Book Now
