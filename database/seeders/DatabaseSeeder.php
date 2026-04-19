@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\BlogPost;
+use App\Models\GalleryImage;
 use App\Models\MenuItem;
 use App\Models\Recipe;
 use App\Models\Resource;
@@ -36,6 +37,7 @@ class DatabaseSeeder extends Seeder
         $this->seedBlogPosts($admin->id);
         $this->seedRecipes();
         $this->seedResources();
+        $this->seedGalleryImages();
     }
 
     private function seedSettings(): void
@@ -64,18 +66,42 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Private Chef Dinner',
                 'short_description' => 'Chef-curated dining experiences in your home, from intimate two-seaters to festive tables of twenty.',
                 'long_description' => '<p>A fully bespoke dinner designed around your guests, allergies and occasion. Chef Eureka arrives with every ingredient, plates each course at your table, and leaves your kitchen cleaner than we found it.</p><p>Menus draw from coastal Nigerian produce with Mediterranean and continental accents, and every booking includes a discovery call to fine-tune the courses.</p>',
+                'included_items' => [
+                    'Discovery call and bespoke menu design',
+                    'All ingredients sourced from local Port Harcourt markets',
+                    'On-site cooking and tableside plating',
+                    'Service of 3- to 5-course menu',
+                    'House-made sauces, breads and accompaniments',
+                    'Full kitchen clean-down after service',
+                ],
                 'base_price' => 250000.00,
             ],
             [
                 'title' => 'Weekly Meal Prep',
                 'short_description' => 'Wholesome, chef-plated meals delivered across Port Harcourt on a weekly rotation.',
                 'long_description' => '<p>A five-day meal plan delivered every Sunday evening, built from the week\'s market-fresh produce. Choose from signature proteins, sides and swallows, with options for low-carb, pescatarian, and family-size portions.</p><p>Packaging is oven-safe and reusable, and every order includes reheating instructions and a simple pairing guide.</p>',
+                'included_items' => [
+                    '5 lunches and 5 dinners per week',
+                    'Weekly rotating menu reflecting seasonal produce',
+                    'Oven-safe reusable packaging',
+                    'Reheating instructions for every dish',
+                    'Option to add family-size portions',
+                    'Sunday evening delivery across Port Harcourt',
+                ],
                 'base_price' => 85000.00,
             ],
             [
                 'title' => 'Small Chops Catering',
                 'short_description' => 'Gold-standard small chops trays for engagements, birthdays and office events.',
                 'long_description' => '<p>Platters of puff puff, samosa, spring rolls, peppered gizzards, suya skewers and seasonal dips, arranged on presentation boards sized for 10, 25 or 50 guests.</p><p>Delivery across Port Harcourt with hot-hold packaging so everything arrives crisp. Vegetarian and pepper-free options available.</p>',
+                'included_items' => [
+                    'Trays sized for 10, 25 or 50 guests',
+                    'Puff puff, samosa, spring rolls, peppered gizzards, suya skewers',
+                    'House dips and pepper sauces',
+                    'Presentation boards and cocktail napkins',
+                    'Hot-hold insulated delivery',
+                    'Vegetarian and pepper-free options on request',
+                ],
                 'base_price' => 120000.00,
             ],
         ];
@@ -293,6 +319,25 @@ class DatabaseSeeder extends Seeder
                     'slug' => Str::slug($item['title']),
                     'is_active' => true,
                 ]),
+            );
+        }
+    }
+
+    private function seedGalleryImages(): void
+    {
+        $images = [
+            ['image' => 'gallery/placeholder-dinner-1.jpg', 'caption' => 'A four-course private dinner service in Old GRA.', 'category' => 'dinners'],
+            ['image' => 'gallery/placeholder-dinner-2.jpg', 'caption' => 'Tableside plating of pepper grilled snapper.', 'category' => 'dinners'],
+            ['image' => 'gallery/placeholder-meal-prep-1.jpg', 'caption' => 'A Sunday-evening meal prep delivery ready to dispatch.', 'category' => 'meal-prep'],
+            ['image' => 'gallery/placeholder-meal-prep-2.jpg', 'caption' => 'Oven-safe packaging with reheating instructions.', 'category' => 'meal-prep'],
+            ['image' => 'gallery/placeholder-small-chops-1.jpg', 'caption' => 'A 50-guest small chops presentation board.', 'category' => 'small-chops'],
+            ['image' => 'gallery/placeholder-small-chops-2.jpg', 'caption' => 'Peppered gizzards and suya skewers plated hot.', 'category' => 'small-chops'],
+        ];
+
+        foreach ($images as $i => $data) {
+            GalleryImage::updateOrCreate(
+                ['image' => $data['image']],
+                array_merge($data, ['sort_order' => $i + 1]),
             );
         }
     }
