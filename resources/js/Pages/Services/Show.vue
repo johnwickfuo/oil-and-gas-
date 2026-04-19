@@ -17,7 +17,7 @@ const formatNaira = (value) => new Intl.NumberFormat('en-NG', {
 
 const imageSrc = computed(() => (props.service.image ? `/storage/${props.service.image}` : null));
 
-const bookHref = computed(() => `/book?service=${encodeURIComponent(props.service.slug)}`);
+const bookHref = computed(() => `${route('booking.create')}?service=${encodeURIComponent(props.service.slug)}`);
 
 const whatsappMessage = computed(
     () => `Hi Blue Dine, I would like to enquire about the "${props.service.title}" service.`,

@@ -49,7 +49,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleEsc));
                             {{ link.label }}
                         </Link>
                         <Link
-                            href="/book"
+                            :href="route('booking.create')"
                             class="inline-flex items-center px-5 py-2.5 rounded-full bg-accent text-charcoal font-semibold text-sm shadow-sm hover:bg-accent/90 transition"
                         >
                             Book Now
@@ -121,7 +121,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleEsc));
                         {{ link.label }}
                     </Link>
                     <Link
-                        href="/book"
+                        :href="route('booking.create')"
                         class="mt-4 inline-flex items-center justify-center px-5 py-3 rounded-full bg-accent text-charcoal font-semibold text-sm hover:bg-accent/90 transition"
                         @click="closeMobile"
                     >

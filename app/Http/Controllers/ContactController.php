@@ -13,11 +13,16 @@ class ContactController extends Controller
     public function submit(Request $request): RedirectResponse
     {
         $data = $request->validate([
+            'website' => ['nullable', 'prohibited'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'message' => ['required', 'string', 'max:5000'],
+        ], [
+            'website.prohibited' => 'Submission blocked.',
         ]);
+
+        unset($data['website']);
 
         $recipient = Settings::get('contact_email', config('mail.from.address'));
 

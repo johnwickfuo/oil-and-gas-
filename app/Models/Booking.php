@@ -24,6 +24,8 @@ class Booking extends Model
         'location',
         'dietary_notes',
         'special_requests',
+        'menu_preferences',
+        'addons',
         'estimated_total',
         'deposit_amount',
         'status',
@@ -34,6 +36,7 @@ class Booking extends Model
     protected $casts = [
         'event_date' => 'date',
         'guests' => 'integer',
+        'addons' => 'array',
         'estimated_total' => 'decimal:2',
         'deposit_amount' => 'decimal:2',
     ];
