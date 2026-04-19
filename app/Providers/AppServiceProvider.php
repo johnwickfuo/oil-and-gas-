@@ -3,8 +3,11 @@
 namespace App\Providers;
 
 use App\Events\BookingCreated;
+use App\Events\PaymentSucceeded;
 use App\Listeners\NotifyAdminOfNewBooking;
+use App\Listeners\NotifyAdminOfPayment;
 use App\Listeners\SendBookingConfirmationToClient;
+use App\Listeners\SendReceiptToClient;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
@@ -25,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
 
         Event::listen(BookingCreated::class, SendBookingConfirmationToClient::class);
         Event::listen(BookingCreated::class, NotifyAdminOfNewBooking::class);
+        Event::listen(PaymentSucceeded::class, SendReceiptToClient::class);
+        Event::listen(PaymentSucceeded::class, NotifyAdminOfPayment::class);
 
         RateLimiter::for('bookings', fn (Request $request) => Limit::perHour(5)->by($request->ip()));
         RateLimiter::for('contact', fn (Request $request) => Limit::perHour(10)->by($request->ip()));

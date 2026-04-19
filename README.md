@@ -55,6 +55,8 @@ php artisan key:generate
 # Edit .env and set at minimum:
 #   DB_DATABASE, DB_USERNAME, DB_PASSWORD
 #   VITE_WHATSAPP_NUMBER, WHATSAPP_NUMBER
+#   PAYSTACK_PUBLIC_KEY, PAYSTACK_SECRET_KEY, PAYSTACK_PAYMENT_URL
+#   FLW_PUBLIC_KEY, FLW_SECRET_KEY, FLW_SECRET_HASH, FLW_PAYMENT_URL
 
 # 3. Create the database, then migrate
 php artisan migrate
@@ -75,6 +77,43 @@ npm run dev          # Vite dev server
 npm run build        # Production asset build
 php artisan test     # Run the PHPUnit suite
 ```
+
+## Payments
+
+The site accepts booking deposits via **Paystack** and **Flutterwave**. Both
+gateways implement `App\Services\Payments\PaymentGateway` and are resolved via
+`PaymentGatewayManager`. All gateway requests and webhook receipts are logged.
+
+### Required environment variables
+
+```env
+PAYSTACK_PUBLIC_KEY=pk_live_xxx
+PAYSTACK_SECRET_KEY=sk_live_xxx
+PAYSTACK_PAYMENT_URL=https://api.paystack.co
+
+FLW_PUBLIC_KEY=FLWPUBK-xxx
+FLW_SECRET_KEY=FLWSECK-xxx
+FLW_SECRET_HASH=<matches-the-secret-hash-set-in-Flutterwave-dashboard>
+FLW_PAYMENT_URL=https://api.flutterwave.com/v3
+```
+
+### Webhook URLs
+
+Configure these exact URLs in each dashboard (replace the host with production
+domain):
+
+| Gateway     | Dashboard setting                       | URL                                         |
+| ----------- | --------------------------------------- | ------------------------------------------- |
+| Paystack    | Settings → API Keys & Webhooks → Webhook URL | `https://<domain>/webhooks/paystack`        |
+| Flutterwave | Settings → Webhooks                      | `https://<domain>/webhooks/flutterwave`     |
+
+- Paystack sends an HMAC-SHA512 signature in `x-paystack-signature`; we verify
+  it against the raw body using `PAYSTACK_SECRET_KEY`.
+- Flutterwave sends a shared secret in the `verif-hash` header; set the same
+  value in both the dashboard **and** `FLW_SECRET_HASH`.
+- Webhook handling is idempotent — repeated deliveries for a reference already
+  marked `success` are a no-op.
+- `/webhooks/*` is CSRF-exempt (wired in `bootstrap/app.php`).
 
 ## Project phases
 

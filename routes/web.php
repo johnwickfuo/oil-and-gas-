@@ -3,6 +3,7 @@
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -25,8 +26,23 @@ Route::post('/book', [BookingController::class, 'store'])
     ->name('booking.store');
 Route::get('/bookings/{reference}/confirmation', [BookingController::class, 'confirmation'])
     ->name('booking.confirmation');
-Route::get('/payment/{reference}', [BookingController::class, 'paymentStub'])
-    ->name('payment.show');
+Route::get('/payment/{reference}', [PaymentController::class, 'choose'])->name('payment.show');
+Route::post('/payment/{reference}/initialize', [PaymentController::class, 'initialize'])
+    ->middleware('throttle:bookings')
+    ->name('payment.initialize');
+Route::get('/payment/callback/{gateway}', [PaymentController::class, 'callback'])
+    ->whereIn('gateway', ['paystack', 'flutterwave'])
+    ->name('payment.callback');
+Route::get('/payment/{gateway}/success/{reference}', [PaymentController::class, 'success'])
+    ->whereIn('gateway', ['paystack', 'flutterwave'])
+    ->name('payment.success');
+Route::get('/payment/{gateway}/failed', [PaymentController::class, 'failed'])
+    ->whereIn('gateway', ['paystack', 'flutterwave'])
+    ->name('payment.failed');
+
+Route::post('/webhooks/{gateway}', [PaymentController::class, 'webhook'])
+    ->whereIn('gateway', ['paystack', 'flutterwave'])
+    ->name('payment.webhook');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
