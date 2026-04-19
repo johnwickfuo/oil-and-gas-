@@ -102,19 +102,6 @@ class BookingController extends Controller
         ]);
     }
 
-    public function paymentStub(string $reference): Response
-    {
-        $booking = Booking::where('reference', $reference)->firstOrFail();
-
-        return Inertia::render('Payment', [
-            'booking' => [
-                'reference' => $booking->reference,
-                'deposit_amount' => (float) $booking->deposit_amount,
-                'estimated_total' => (float) $booking->estimated_total,
-            ],
-        ]);
-    }
-
     private function servicesPayload(): array
     {
         return Service::query()
