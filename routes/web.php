@@ -1,10 +1,15 @@
 <?php
 
+use App\Http\Controllers\AcademyController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\ResourceController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -43,6 +48,26 @@ Route::get('/payment/{gateway}/failed', [PaymentController::class, 'failed'])
 Route::post('/webhooks/{gateway}', [PaymentController::class, 'webhook'])
     ->whereIn('gateway', ['paystack', 'flutterwave'])
     ->name('payment.webhook');
+
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+
+Route::get('/recipes', [RecipeController::class, 'index'])->name('recipes.index');
+Route::get('/recipes/{slug}', [RecipeController::class, 'show'])->name('recipes.show');
+
+Route::get('/resources', [ResourceController::class, 'index'])->name('resources.index');
+Route::post('/resources/{slug}/download', [ResourceController::class, 'download'])
+    ->middleware('throttle:downloads')
+    ->name('resources.download');
+
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])
+    ->middleware('throttle:newsletter')
+    ->name('newsletter.subscribe');
+
+Route::get('/academy', [AcademyController::class, 'show'])->name('academy');
+Route::post('/academy/waitlist', [AcademyController::class, 'joinWaitlist'])
+    ->middleware('throttle:newsletter')
+    ->name('academy.join');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
