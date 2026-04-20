@@ -1,7 +1,8 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 
 const props = defineProps({
     services: { type: Array, default: () => [] },
@@ -88,7 +89,10 @@ const minDate = new Date(Date.now() + 86400000).toISOString().split('T')[0];
 </script>
 
 <template>
-    <Head title="Book — Blue Dine Cuisines" />
+    <SeoHead
+        title="Book a Chef"
+        description="Book Blue Dine Cuisines — private chef dinners, meal prep and small chops catering in Port Harcourt. Pick a service, date and guest count."
+    />
 
     <PublicLayout>
         <section class="bg-primary text-cream">

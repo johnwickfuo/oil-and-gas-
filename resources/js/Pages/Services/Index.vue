@@ -1,6 +1,9 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
+
+const page = usePage();
 
 defineProps({
     services: { type: Array, default: () => [] },
@@ -16,7 +19,20 @@ const storageUrl = (path) => (path ? `/storage/${path}` : null);
 </script>
 
 <template>
-    <Head title="Services — Blue Dine Cuisines" />
+    <SeoHead
+        title="Services"
+        description="Private chef, meal prep, small chops catering and healthy meal delivery in Port Harcourt. Explore Blue Dine Cuisines' offerings."
+        :structured-data="{
+            '@context': 'https://schema.org',
+            '@type': 'FoodEstablishment',
+            name: page.props.site?.name || 'Blue Dine Cuisines',
+            url: (page.props.site?.url || '') + '/services',
+            telephone: page.props.site?.phone,
+            servesCuisine: ['Nigerian', 'West African', 'Contemporary'],
+            priceRange: '₦₦₦',
+            areaServed: 'Port Harcourt, Rivers, Nigeria',
+        }"
+    />
 
     <PublicLayout>
         <section class="bg-primary text-cream">
@@ -39,7 +55,7 @@ const storageUrl = (path) => (path ? `/storage/${path}` : null);
                         class="bg-white rounded-2xl overflow-hidden border border-primary/5 shadow-sm flex flex-col"
                     >
                         <div class="aspect-[4/3] bg-primary/10 overflow-hidden">
-                            <img
+                            <img loading="lazy" decoding="async"
                                 v-if="service.image"
                                 :src="storageUrl(service.image)"
                                 :alt="service.title"

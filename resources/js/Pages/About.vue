@@ -1,6 +1,7 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 
 defineProps({
     settings: { type: Object, default: () => ({}) },
@@ -30,7 +31,16 @@ const credentials = [
 </script>
 
 <template>
-    <Head title="About — Blue Dine Cuisines" />
+    <SeoHead
+        title="About Chef Eureka"
+        description="Meet Chef Eureka Francis — the private chef behind Blue Dine Cuisines, Port Harcourt's home for intimate dining, meal prep and small chops catering."
+        :structured-data="{
+            '@context': 'https://schema.org',
+            '@type': 'AboutPage',
+            name: 'About Blue Dine Cuisines',
+            url: $page.props.site?.url + '/about',
+        }"
+    />
 
     <PublicLayout>
         <section class="relative bg-primary text-cream">

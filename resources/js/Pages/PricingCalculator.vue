@@ -1,7 +1,8 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { Head, router } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 
 const props = defineProps({
     services: { type: Array, default: () => [] },
@@ -61,7 +62,10 @@ const summaryOpen = ref(false);
 </script>
 
 <template>
-    <Head title="Pricing Calculator — Blue Dine Cuisines" />
+    <SeoHead
+        title="Pricing Calculator"
+        description="Estimate your Blue Dine booking — private chef, meal prep and small chops catering in Port Harcourt. Get a live price with location and add-ons."
+    />
 
     <PublicLayout>
         <section class="bg-primary text-cream">

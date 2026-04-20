@@ -1,7 +1,8 @@
 <script setup>
 import { ref } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 
 const props = defineProps({
     recipes: { type: Object, required: true },
@@ -33,7 +34,10 @@ const storageUrl = (path) => (path ? `/storage/${path}` : null);
 </script>
 
 <template>
-    <Head title="Recipes — Blue Dine Cuisines" />
+    <SeoHead
+        title="Recipes"
+        description="Tested Nigerian and Port Harcourt-inspired recipes from Blue Dine Cuisines — with print-friendly versions ready for your stove."
+    />
     <PublicLayout>
         <section class="bg-primary text-cream py-16">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -83,7 +87,7 @@ const storageUrl = (path) => (path ? `/storage/${path}` : null);
                              class="group bg-white rounded-2xl overflow-hidden border border-primary/5 hover:shadow-md transition">
                         <Link :href="route('recipes.show', recipe.slug)" class="block">
                             <div class="aspect-[4/3] bg-primary/10 overflow-hidden">
-                                <img v-if="recipe.cover_image" :src="storageUrl(recipe.cover_image)" :alt="recipe.title"
+                                <img loading="lazy" decoding="async" v-if="recipe.cover_image" :src="storageUrl(recipe.cover_image)" :alt="recipe.title"
                                      class="h-full w-full object-cover group-hover:scale-105 transition" />
                             </div>
                             <div class="p-6">

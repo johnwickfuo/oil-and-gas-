@@ -1,11 +1,51 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 
 const props = defineProps({
     recipe: { type: Object, required: true },
 });
+
+const page = usePage();
+const absoluteImage = computed(() => {
+    if (!props.recipe.cover_image) return null;
+    return `${page.props.site?.url || ''}/storage/${props.recipe.cover_image}`;
+});
+const recipeUrl = computed(() => `${page.props.site?.url || ''}/recipes/${props.recipe.slug}`);
+const isoDuration = (mins) => `PT${Math.max(0, Math.round(Number(mins) || 0))}M`;
+const structuredData = computed(() => [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'Recipe',
+        name: props.recipe.title,
+        description: props.recipe.excerpt,
+        image: absoluteImage.value ? [absoluteImage.value] : undefined,
+        author: { '@type': 'Organization', name: page.props.site?.name || 'Blue Dine Cuisines' },
+        prepTime: isoDuration(props.recipe.prep_time),
+        cookTime: isoDuration(props.recipe.cook_time),
+        totalTime: isoDuration(props.recipe.total_time),
+        recipeYield: `${props.recipe.servings} servings`,
+        recipeCategory: props.recipe.meal_type,
+        recipeCuisine: 'Nigerian',
+        recipeIngredient: (props.recipe.ingredients || []).map((i) => [i.quantity, i.item].filter(Boolean).join(' ')),
+        recipeInstructions: (props.recipe.instructions || []).map((step, idx) => ({
+            '@type': 'HowToStep',
+            position: idx + 1,
+            text: step,
+        })),
+    },
+    {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: page.props.site?.url || '/' },
+            { '@type': 'ListItem', position: 2, name: 'Recipes', item: `${page.props.site?.url || ''}/recipes` },
+            { '@type': 'ListItem', position: 3, name: props.recipe.title, item: recipeUrl.value },
+        ],
+    },
+]);
 
 const storageUrl = (path) => (path ? `/storage/${path}` : null);
 
@@ -33,7 +73,13 @@ function printRecipe() {
 </script>
 
 <template>
-    <Head :title="`${recipe.title} — Blue Dine Recipes`" />
+    <SeoHead
+        :title="recipe.title"
+        :description="recipe.excerpt"
+        :image="absoluteImage"
+        type="article"
+        :structured-data="structuredData"
+    />
     <PublicLayout>
         <article class="recipe-article">
             <section class="relative bg-primary text-cream">

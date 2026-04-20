@@ -29,7 +29,11 @@ class GalleryImageResource extends Resource
                 ->directory('gallery')
                 ->required()
                 ->columnSpanFull(),
-            Forms\Components\TextInput::make('caption')->maxLength(255),
+            Forms\Components\TextInput::make('caption')
+                ->label('Caption / alt text')
+                ->helperText('Describe the image for screen readers and SEO. Required for accessibility.')
+                ->required()
+                ->maxLength(255),
             Forms\Components\TextInput::make('category')
                 ->maxLength(100)
                 ->helperText('e.g. dinners, small-chops, meal-prep.'),
