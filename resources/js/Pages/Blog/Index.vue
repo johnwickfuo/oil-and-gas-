@@ -1,7 +1,8 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 
 const props = defineProps({
     featured: { type: Object, default: null },
@@ -36,7 +37,10 @@ const formattedDate = (iso) => iso ? new Date(iso).toLocaleDateString('en-GB', {
 </script>
 
 <template>
-    <Head title="Journal — Blue Dine Cuisines" />
+    <SeoHead
+        title="Journal"
+        description="Techniques, seasonal menus and kitchen stories from Blue Dine Cuisines — private chef and meal prep in Port Harcourt."
+    />
     <PublicLayout>
         <section class="bg-primary text-cream py-16">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -77,7 +81,7 @@ const formattedDate = (iso) => iso ? new Date(iso).toLocaleDateString('en-GB', {
                     class="group grid md:grid-cols-2 gap-10 items-stretch bg-white border border-primary/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition"
                 >
                     <div class="aspect-[16/10] md:aspect-auto bg-primary/10 overflow-hidden">
-                        <img v-if="featured.cover_image" :src="storageUrl(featured.cover_image)" :alt="featured.title"
+                        <img loading="lazy" decoding="async" v-if="featured.cover_image" :src="storageUrl(featured.cover_image)" :alt="featured.title"
                              class="h-full w-full object-cover group-hover:scale-105 transition" />
                     </div>
                     <div class="p-8 sm:p-12 flex flex-col justify-center">
@@ -103,7 +107,7 @@ const formattedDate = (iso) => iso ? new Date(iso).toLocaleDateString('en-GB', {
                              class="bg-white rounded-2xl overflow-hidden border border-primary/5 hover:shadow-md transition group">
                         <Link :href="route('blog.show', post.slug)" class="block">
                             <div class="aspect-[16/10] bg-primary/10 overflow-hidden">
-                                <img v-if="post.cover_image" :src="storageUrl(post.cover_image)" :alt="post.title"
+                                <img loading="lazy" decoding="async" v-if="post.cover_image" :src="storageUrl(post.cover_image)" :alt="post.title"
                                      class="h-full w-full object-cover group-hover:scale-105 transition" />
                             </div>
                             <div class="p-6">

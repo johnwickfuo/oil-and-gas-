@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue';
-import { Head } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 
 const props = defineProps({
     images: { type: Array, default: () => [] },
@@ -47,7 +47,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
 </script>
 
 <template>
-    <Head title="Gallery — Blue Dine Cuisines" />
+    <SeoHead
+        title="Gallery"
+        description="Plating, events and behind-the-scenes from Blue Dine Cuisines — private chef dinners and small chops catering in Port Harcourt."
+    />
 
     <PublicLayout>
         <section class="bg-primary text-cream">
@@ -97,11 +100,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
                         class="block w-full break-inside-avoid rounded-2xl overflow-hidden bg-white border border-primary/5 shadow-sm group"
                         @click="openLightbox(idx)"
                     >
-                        <img
+                        <img loading="lazy" decoding="async"
                             :src="storageUrl(image.image)"
                             :alt="image.caption || ''"
                             class="w-full h-auto object-cover group-hover:opacity-90 transition"
-                            loading="lazy"
                         />
                         <div v-if="image.caption || image.category" class="p-4 text-left">
                             <p v-if="image.category" class="uppercase tracking-widest text-[10px] text-accent mb-1 capitalize">
@@ -163,7 +165,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
                     </svg>
                 </button>
                 <figure class="max-w-5xl w-full">
-                    <img
+                    <img loading="lazy" decoding="async"
                         :src="storageUrl(currentImage.image)"
                         :alt="currentImage.caption || ''"
                         class="max-h-[80vh] w-full object-contain rounded-xl"

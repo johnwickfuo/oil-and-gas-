@@ -1,6 +1,7 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 import WhatsAppButton from '@/Components/WhatsAppButton.vue';
 
 const props = defineProps({
@@ -16,7 +17,11 @@ const whatsappMessage = `Hi Blue Dine, my booking reference is ${props.booking.r
 </script>
 
 <template>
-    <Head :title="`Booking ${booking.reference} — Blue Dine Cuisines`" />
+    <SeoHead
+        :title="`Booking ${booking.reference}`"
+        description="Your Blue Dine Cuisines booking confirmation."
+        noindex
+    />
 
     <PublicLayout>
         <section class="bg-primary text-cream">

@@ -1,6 +1,7 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 
 defineProps({
     gateway: { type: String, required: true },
@@ -18,7 +19,7 @@ const formattedDate = (iso) => {
 </script>
 
 <template>
-    <Head title="Payment received — Blue Dine Cuisines" />
+    <SeoHead title="Payment received" description="Your Blue Dine deposit payment is confirmed." noindex />
 
     <PublicLayout>
         <section class="bg-primary text-cream">

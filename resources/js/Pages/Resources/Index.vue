@@ -1,7 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 
 defineProps({
     resources: { type: Array, required: true },
@@ -33,7 +34,10 @@ const storageUrl = (path) => (path ? `/storage/${path}` : null);
 </script>
 
 <template>
-    <Head title="Free Resources — Blue Dine Cuisines" />
+    <SeoHead
+        title="Free Resources"
+        description="Free printable recipe cards, meal planners and kitchen guides from Blue Dine Cuisines — private chef and meal prep in Port Harcourt."
+    />
     <PublicLayout>
         <section class="bg-primary text-cream py-16">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -55,7 +59,7 @@ const storageUrl = (path) => (path ? `/storage/${path}` : null);
                     <article v-for="resource in resources" :key="resource.id"
                              class="bg-white rounded-2xl overflow-hidden border border-primary/5 shadow-sm flex flex-col">
                         <div class="aspect-[16/10] bg-primary/10 overflow-hidden">
-                            <img v-if="resource.cover_image" :src="storageUrl(resource.cover_image)" :alt="resource.title"
+                            <img loading="lazy" decoding="async" v-if="resource.cover_image" :src="storageUrl(resource.cover_image)" :alt="resource.title"
                                  class="h-full w-full object-cover" />
                         </div>
                         <div class="p-6 flex-1 flex flex-col">

@@ -1,7 +1,8 @@
 <script setup>
 import { ref } from 'vue';
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 
 const props = defineProps({
     booking: { type: Object, required: true },
@@ -26,7 +27,7 @@ function submit() {
 </script>
 
 <template>
-    <Head :title="`Pay deposit ${booking.reference} — Blue Dine Cuisines`" />
+    <SeoHead :title="`Pay deposit ${booking.reference}`" description="Secure your Blue Dine booking deposit." noindex />
 
     <PublicLayout>
         <section class="bg-primary text-cream">
