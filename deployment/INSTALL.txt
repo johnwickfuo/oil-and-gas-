@@ -1,0 +1,137 @@
+Blue Dine Cuisines — Deployment Guide (HestiaCP, zip upload workflow)
+=====================================================================
+
+You only need a web browser, the HestiaCP login, the bluedine-deploy.zip
+archive, and this file. Every command below is copy/paste.
+
+Each step starts with a short "why" sentence so you can skip ahead if you
+already know it.
+
+-----------------------------------------------------------------------
+ 1. Buy a domain and point it at the server.
+    In your domain registrar, set the A record of bluedinecuisines.com
+    (and www) to the public IP of your Contabo VPS. Wait ~10 minutes
+    for DNS to propagate.
+
+ 2. Create a Hestia web domain.
+    Log into HestiaCP → WEB → Add Web Domain. Enter
+    "bluedinecuisines.com" and tick "DNS Support" + "Mail Support" if
+    you want mail on the same domain. Apply.
+
+ 3. Issue a Let's Encrypt certificate.
+    On the same web domain, click the pencil → tick "SSL Support" +
+    "Lets Encrypt Support" → Save. Hestia will fetch a cert.
+
+ 4. Create a MySQL database.
+    HestiaCP → DB → Add Database. Type "bluedine", choose a strong
+    password, pick MySQL, tick "Remote Access: none". Write the
+    database name and credentials down — you'll paste them into
+    .env in step 10.
+
+ 5. Upload the zip.
+    HestiaCP → FILES → navigate into
+    /home/<hestia-user>/web/bluedinecuisines.com/public_html/
+    Delete the default index.html inside. Upload bluedine-deploy.zip
+    using the file manager's upload button.
+
+ 6. Unzip it in place.
+    In the file manager, select bluedine-deploy.zip and click
+    "Archive" → "Extract". It will unpack into the same folder and
+    include hidden files like .env.example and .htaccess.
+    Once extracted, delete bluedine-deploy.zip to save space.
+
+ 7. Move the public/ folder to the document root.
+    Hestia serves the web domain from public_html, but Laravel serves
+    from public/. Two options:
+
+    (a) Easiest: in HestiaCP → WEB → edit bluedinecuisines.com →
+        Advanced → set "Proxy / Web root" (or the equivalent in your
+        Hestia version) to "public". Save.
+
+    (b) Alternative: open a terminal (Hestia → SSH) and run
+        rm -rf public_html && ln -s <project-folder>/public public_html
+
+    If in doubt, use option (a).
+
+ 8. Install PHP dependencies (skip if you kept vendor/ in the zip).
+    The zip already ships vendor/, so composer install is optional.
+    If you ever need to refresh:
+      ssh <hestia-user>@<server>
+      cd ~/web/bluedinecuisines.com/public_html
+      composer install --no-dev --optimize-autoloader
+
+ 9. Create the .env file.
+    Rename deployment/.env.production to .env at the project root:
+      mv deployment/.env.production .env
+    Open .env in the file manager and fill in every line marked
+    "FILL IN":
+      - APP_KEY (leave blank; step 10 fills it)
+      - APP_URL (https://bluedinecuisines.com)
+      - DB_DATABASE / DB_USERNAME / DB_PASSWORD (from step 4)
+      - MAIL_* (your SMTP provider)
+      - WHATSAPP_NUMBER + VITE_WHATSAPP_NUMBER
+      - PAYSTACK_* and FLW_* (payment keys)
+
+10. Generate the app encryption key.
+    Over SSH, from the project root:
+      php artisan key:generate --force
+    This writes APP_KEY into .env.
+
+11. Import the database.
+    HestiaCP → DB → click the database → phpMyAdmin → Import →
+    choose deployment/bluedine.sql → Go. Wait for the green success
+    banner. This creates every table and loads the seed content
+    (services, menu, admin user, site settings).
+
+12. Set directory permissions.
+    Over SSH from the project root:
+      chmod -R 775 storage bootstrap/cache
+      chown -R <hestia-user>:<hestia-user> storage bootstrap/cache
+
+13. Create the storage symlink.
+    This lets uploaded images under storage/app/public/ be served
+    publicly:
+      php artisan storage:link
+
+14. Cache config and routes.
+    From the project root:
+      php artisan config:cache
+      php artisan route:cache
+      php artisan view:cache
+      php artisan event:cache
+
+15. Register the scheduler cron.
+    HestiaCP → CRON → Add Cron Job. Paste:
+      * * * * * cd /home/<user>/web/bluedinecuisines.com/public_html && php artisan schedule:run >> /dev/null 2>&1
+    Save. This runs the daily sitemap regeneration and any future
+    scheduled jobs.
+
+16. Configure payment webhooks.
+    Log into Paystack → Settings → API Keys & Webhooks, set the
+    webhook URL to:
+      https://bluedinecuisines.com/webhooks/paystack
+    Log into Flutterwave → Settings → Webhooks, set the webhook URL
+    to:
+      https://bluedinecuisines.com/webhooks/flutterwave
+    Use the same secret in FLW_SECRET_HASH as in the dashboard.
+
+17. Log in to the admin panel.
+    Visit https://bluedinecuisines.com/admin
+      Email:    [email protected]
+      Password: password
+    CHANGE THE PASSWORD IMMEDIATELY from the profile page.
+
+18. Smoke-test the site.
+    Visit the home page, the menu, a recipe, and submit a test
+    booking. Confirm the contact form delivers email and the
+    Paystack flow opens.
+
+19. Tighten security.
+    In .env, set APP_DEBUG=false and LOG_LEVEL=error if not already.
+    Clear caches after any .env change:
+      php artisan config:clear && php artisan config:cache
+
+20. Done. The site is live.
+    For upgrades, upload a new zip and repeat steps 5-10, 13 and 14.
+    If something breaks, temporarily set APP_DEBUG=true and reload to
+    see the error, then revert.
