@@ -13,6 +13,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "spatie/laravel-medialibrary": "^11.0",
+        "spatie/laravel-sitemap": "^8.0",
         "tightenco/ziggy": "^2.0",
         "unicodeveloper/laravel-paystack": "^1.2"
     },

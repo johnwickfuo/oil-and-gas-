@@ -1,12 +1,60 @@
 <script setup>
 import { computed } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 import WhatsAppButton from '@/Components/WhatsAppButton.vue';
 
 const props = defineProps({
     service: { type: Object, required: true },
     settings: { type: Object, default: () => ({}) },
+});
+
+const page = usePage();
+
+const structuredData = computed(() => {
+    const siteUrl = page.props.site?.url || '';
+    const serviceUrl = `${siteUrl}/services/${props.service.slug}`;
+    const imageUrl = props.service.image
+        ? `${siteUrl}/storage/${props.service.image}`
+        : (page.props.site?.og_image || null);
+
+    return [
+        {
+            '@context': 'https://schema.org',
+            '@type': 'FoodEstablishment',
+            name: `${props.service.title} — Blue Dine Cuisines`,
+            description: props.service.short_description,
+            url: serviceUrl,
+            image: imageUrl,
+            telephone: page.props.site?.phone,
+            priceRange: '₦₦₦',
+            servesCuisine: ['Nigerian', 'West African', 'Contemporary'],
+            areaServed: 'Port Harcourt, Rivers, Nigeria',
+            address: {
+                '@type': 'PostalAddress',
+                addressLocality: 'Port Harcourt',
+                addressRegion: 'Rivers',
+                addressCountry: 'NG',
+            },
+            offers: {
+                '@type': 'Offer',
+                priceCurrency: 'NGN',
+                price: props.service.base_price,
+                availability: 'https://schema.org/InStock',
+                url: serviceUrl,
+            },
+        },
+        {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+                { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl || '/' },
+                { '@type': 'ListItem', position: 2, name: 'Services', item: `${siteUrl}/services` },
+                { '@type': 'ListItem', position: 3, name: props.service.title, item: serviceUrl },
+            ],
+        },
+    ];
 });
 
 const formatNaira = (value) => new Intl.NumberFormat('en-NG', {
@@ -25,7 +73,12 @@ const whatsappMessage = computed(
 </script>
 
 <template>
-    <Head :title="`${service.title} — Blue Dine Cuisines`" />
+    <SeoHead
+        :title="service.title"
+        :description="service.short_description"
+        :image="imageSrc ? imageSrc : null"
+        :structured-data="structuredData"
+    />
 
     <PublicLayout>
         <section class="relative bg-primary text-cream">

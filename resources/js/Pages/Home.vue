@@ -1,7 +1,8 @@
 <script setup>
 import { computed } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 
 const props = defineProps({
     featuredServices: { type: Array, default: () => [] },
@@ -10,6 +11,59 @@ const props = defineProps({
     latestPosts: { type: Array, default: () => [] },
     settings: { type: Object, default: () => ({}) },
 });
+
+const page = usePage();
+const site = computed(() => page.props.site || {});
+
+const structuredData = computed(() => [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'LocalBusiness',
+        '@id': `${site.value.url}/#business`,
+        name: site.value.name || 'Blue Dine Cuisines',
+        description: 'Private chef, meal prep, small chops catering and healthy meal delivery in Port Harcourt.',
+        url: site.value.url,
+        telephone: site.value.phone,
+        email: site.value.email,
+        image: site.value.og_image,
+        priceRange: '₦₦₦',
+        address: {
+            '@type': 'PostalAddress',
+            streetAddress: site.value.address || 'Port Harcourt',
+            addressLocality: 'Port Harcourt',
+            addressRegion: 'Rivers',
+            addressCountry: 'NG',
+        },
+        geo: {
+            '@type': 'GeoCoordinates',
+            latitude: 4.8156,
+            longitude: 7.0498,
+        },
+        areaServed: {
+            '@type': 'City',
+            name: 'Port Harcourt',
+        },
+        openingHoursSpecification: [
+            {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                opens: '09:00',
+                closes: '20:00',
+            },
+        ],
+    },
+    {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        url: site.value.url,
+        name: site.value.name || 'Blue Dine Cuisines',
+        potentialAction: {
+            '@type': 'SearchAction',
+            target: `${site.value.url}/blog?q={query}`,
+            'query-input': 'required name=query',
+        },
+    },
+]);
 
 const nairaFormatter = new Intl.NumberFormat('en-NG', {
     style: 'currency',
@@ -31,7 +85,11 @@ const hasPosts = computed(() => props.latestPosts.length > 0);
 </script>
 
 <template>
-    <Head title="Blue Dine Cuisines — Private Dining, Reimagined" />
+    <SeoHead
+        :title="null"
+        description="Blue Dine Cuisines is a private chef and meal prep kitchen in Port Harcourt. Intimate dinners, weekly healthy meal delivery and small chops catering by Chef Eureka Francis."
+        :structured-data="structuredData"
+    />
 
     <PublicLayout>
         <section class="relative min-h-[85vh] flex items-center">
@@ -47,8 +105,9 @@ const hasPosts = computed(() => props.latestPosts.length > 0);
                         Private Dining, Reimagined
                     </h1>
                     <p class="mt-6 text-lg sm:text-xl text-cream/80 max-w-2xl">
-                        Chef Eureka Francis crafts intimate, seasonal dining experiences
-                        and wholesome weekly menus that feel unmistakably personal.
+                        Chef Eureka Francis crafts intimate, seasonal dining experiences,
+                        weekly healthy meal delivery in Port Harcourt, and small chops
+                        catering that feels unmistakably personal.
                     </p>
                     <div class="mt-10 flex flex-col sm:flex-row gap-4">
                         <Link
@@ -82,7 +141,7 @@ const hasPosts = computed(() => props.latestPosts.length > 0);
                         class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition border border-primary/5 flex flex-col"
                     >
                         <div class="aspect-[4/3] bg-primary/10 overflow-hidden">
-                            <img
+                            <img loading="lazy" decoding="async"
                                 v-if="service.image"
                                 :src="storageUrl(service.image)"
                                 :alt="service.title"
@@ -128,7 +187,7 @@ const hasPosts = computed(() => props.latestPosts.length > 0);
                         class="group rounded-2xl overflow-hidden bg-cream border border-primary/5"
                     >
                         <div class="aspect-[4/3] bg-primary/10 overflow-hidden">
-                            <img
+                            <img loading="lazy" decoding="async"
                                 v-if="dish.photo"
                                 :src="storageUrl(dish.photo)"
                                 :alt="dish.name"
@@ -192,7 +251,7 @@ const hasPosts = computed(() => props.latestPosts.length > 0);
                         class="bg-white rounded-2xl overflow-hidden border border-primary/5"
                     >
                         <div class="aspect-[16/9] bg-primary/10">
-                            <img
+                            <img loading="lazy" decoding="async"
                                 v-if="post.cover_image"
                                 :src="storageUrl(post.cover_image)"
                                 :alt="post.title"

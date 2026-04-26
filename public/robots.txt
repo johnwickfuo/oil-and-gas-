@@ -1,2 +1,12 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
+Disallow: /register
+Disallow: /profile
+Disallow: /payment/
+Disallow: /webhooks/
+Disallow: /bookings/
+
+Sitemap: /sitemap.xml

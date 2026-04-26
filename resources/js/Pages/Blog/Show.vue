@@ -1,12 +1,53 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 
 const props = defineProps({
     post: { type: Object, required: true },
     related: { type: Array, default: () => [] },
 });
+
+const page = usePage();
+const absoluteImage = computed(() => {
+    if (!props.post.cover_image) return null;
+    const siteUrl = page.props.site?.url || '';
+    return `${siteUrl}/storage/${props.post.cover_image}`;
+});
+const postUrl = computed(() => `${page.props.site?.url || ''}/blog/${props.post.slug}`);
+const structuredData = computed(() => [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: props.post.title,
+        description: props.post.meta_description || props.post.excerpt,
+        image: absoluteImage.value ? [absoluteImage.value] : undefined,
+        author: props.post.author
+            ? { '@type': 'Person', name: props.post.author.name }
+            : undefined,
+        publisher: {
+            '@type': 'Organization',
+            name: page.props.site?.name || 'Blue Dine Cuisines',
+            logo: page.props.site?.og_image
+                ? { '@type': 'ImageObject', url: page.props.site.og_image }
+                : undefined,
+        },
+        datePublished: props.post.published_at,
+        dateModified: props.post.published_at,
+        mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl.value },
+        keywords: (props.post.tags || []).join(', ') || undefined,
+    },
+    {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: page.props.site?.url || '/' },
+            { '@type': 'ListItem', position: 2, name: 'Journal', item: `${page.props.site?.url || ''}/blog` },
+            { '@type': 'ListItem', position: 3, name: props.post.title, item: postUrl.value },
+        ],
+    },
+]);
 
 const storageUrl = (path) => (path ? `/storage/${path}` : null);
 const formattedDate = (iso) => iso ? new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
@@ -31,9 +72,13 @@ async function copyLink() {
 </script>
 
 <template>
-    <Head :title="post.meta_title || `${post.title} — Blue Dine Cuisines`">
-        <meta v-if="post.meta_description" name="description" :content="post.meta_description" />
-    </Head>
+    <SeoHead
+        :title="post.meta_title || post.title"
+        :description="post.meta_description || post.excerpt"
+        :image="absoluteImage"
+        type="article"
+        :structured-data="structuredData"
+    />
 
     <PublicLayout>
         <article>

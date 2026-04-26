@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { Head } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 import WhatsAppButton from '@/Components/WhatsAppButton.vue';
 
 const props = defineProps({
@@ -36,7 +36,10 @@ const orderMessage = (item) => `Hi Blue Dine, I'd like to order "${item.name}" (
 </script>
 
 <template>
-    <Head title="This Week's Menu — Blue Dine Cuisines" />
+    <SeoHead
+        title="This Week's Menu"
+        description="Seasonal weekly menu from Blue Dine Cuisines — healthy meal delivery in Port Harcourt, small chops catering and curated dinners."
+    />
 
     <PublicLayout>
         <section class="bg-primary text-cream">
@@ -76,7 +79,7 @@ const orderMessage = (item) => `Hi Blue Dine, I'd like to order "${item.name}" (
                         class="bg-white rounded-2xl overflow-hidden border border-primary/5 shadow-sm flex flex-col"
                     >
                         <div class="aspect-[4/3] bg-primary/10 overflow-hidden">
-                            <img
+                            <img loading="lazy" decoding="async"
                                 v-if="item.photo"
                                 :src="storageUrl(item.photo)"
                                 :alt="item.name"

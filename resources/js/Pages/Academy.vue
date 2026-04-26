@@ -1,6 +1,7 @@
 <script setup>
-import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 
 const props = defineProps({
     interestLevels: { type: Object, default: () => ({}) },
@@ -35,7 +36,10 @@ const teachingPoints = [
 </script>
 
 <template>
-    <Head title="Blue Dine Academy — Coming Soon" />
+    <SeoHead
+        title="Blue Dine Academy — Coming Soon"
+        description="A small-batch culinary school in Port Harcourt by Chef Eureka. Hands-on training for home cooks who want to cook like professionals."
+    />
     <PublicLayout>
         <section class="relative bg-primary text-cream min-h-[60vh] flex items-center">
             <div class="absolute inset-0 bg-gradient-to-br from-charcoal/80 via-primary/80 to-charcoal/80"></div>

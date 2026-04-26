@@ -1,6 +1,7 @@
 <script setup>
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 
 defineProps({
     gateway: { type: String, required: true },
@@ -10,7 +11,7 @@ const page = usePage();
 </script>
 
 <template>
-    <Head title="Payment could not be completed — Blue Dine Cuisines" />
+    <SeoHead title="Payment could not be completed" description="Your Blue Dine payment was not completed." noindex />
 
     <PublicLayout>
         <section class="bg-primary text-cream">

@@ -1,7 +1,8 @@
 <script setup>
-import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import SeoHead from '@/Components/SeoHead.vue';
 import WhatsAppButton from '@/Components/WhatsAppButton.vue';
 
 const props = defineProps({
@@ -28,7 +29,10 @@ const submit = () => {
 </script>
 
 <template>
-    <Head title="Contact — Blue Dine Cuisines" />
+    <SeoHead
+        title="Contact"
+        description="Reach Blue Dine Cuisines — private chef, meal prep and small chops catering in Port Harcourt. WhatsApp, phone and email."
+    />
 
     <PublicLayout>
         <section class="bg-primary text-cream">

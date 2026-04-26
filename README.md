@@ -115,6 +115,56 @@ domain):
   marked `success` are a no-op.
 - `/webhooks/*` is CSRF-exempt (wired in `bootstrap/app.php`).
 
+## Scheduler & cron
+
+The Laravel scheduler drives sitemap regeneration and any future recurring
+jobs. On the production server, register a single system cron entry that runs
+the scheduler every minute:
+
+```
+* * * * * cd /var/www/bluedine && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Scheduled tasks (see `routes/console.php`):
+
+- `sitemap:generate` &mdash; daily at 03:00, writes `public/sitemap.xml`
+  covering home, about, services, menu, gallery, resources, academy, contact,
+  every published blog post, and every published recipe.
+
+Run it manually at any time with:
+
+```
+php artisan sitemap:generate
+```
+
+## SEO
+
+- `public/robots.txt` allows crawling of public pages and points to
+  `/sitemap.xml`; admin, auth and webhook routes are disallowed.
+- Meta tags (title / description / canonical / OG / Twitter Card) are rendered
+  through `resources/js/Components/SeoHead.vue`, which is used on every public
+  page and reads the shared `site` prop defined in
+  `app/Http/Middleware/HandleInertiaRequests.php`.
+- JSON-LD structured data: `LocalBusiness` + `WebSite` on home,
+  `FoodEstablishment` on services, `Recipe` on recipe detail, `Article` on
+  blog posts, and `BreadcrumbList` on inner pages.
+- Target keywords (woven into copy and meta): *private chef Port Harcourt*,
+  *meal prep Port Harcourt*, *small chops catering Port Harcourt*, *healthy
+  meal delivery Port Harcourt*.
+
+## Accessibility & performance
+
+- Skip-to-content link at the top of `PublicLayout.vue`.
+- Global `:focus-visible` styles in `resources/css/app.css`.
+- `loading="lazy" decoding="async"` on non-hero images; hero images use
+  `fetchpriority="high"`.
+- Preloaded critical fonts in `resources/views/app.blade.php` with a
+  `@stack('preload')` slot for per-page hero preloads.
+- Cookie notice banner (`resources/js/Components/CookieNotice.vue`) mounts in
+  `PublicLayout.vue` and persists dismissal in `localStorage`.
+- Custom Inertia error pages: `resources/js/Pages/Errors/404.vue` and
+  `500.vue`, wired through `bootstrap/app.php`.
+
 ## Project phases
 
 1. **Foundation** &mdash; Laravel + Breeze + Tailwind + public layout + home
