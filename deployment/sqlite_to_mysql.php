@@ -95,6 +95,23 @@ function escapeValue($v, PDO $pdo): string
 
 $tables = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
 
+// Pre-scan: build a map of tables that have an auto-increment integer PK so
+// we can mark foreign-key columns referencing them as BIGINT UNSIGNED. SQLite
+// does not track unsigned-ness, but MySQL refuses FKs between mismatched
+// signed/unsigned columns (errno 150).
+$autoIncTables = [];
+foreach ($tables as $table) {
+    $createSql = $pdo->query("SELECT sql FROM sqlite_master WHERE type='table' AND name=" . $pdo->quote($table))->fetchColumn();
+    if (stripos($createSql, 'AUTOINCREMENT') === false) continue;
+    $cols = $pdo->query("PRAGMA table_info(" . escapeIdent($table) . ")")->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($cols as $c) {
+        if ($c['pk'] > 0 && strtolower($c['type']) === 'integer') {
+            $autoIncTables[$table] = $c['name'];
+            break;
+        }
+    }
+}
+
 $skip = []; // emit every table
 $out = [];
 $out[] = "-- Blue Dine Cuisines — seeded database";
@@ -124,6 +141,12 @@ foreach ($tables as $table) {
     ksort($pkCols);
     $pkCols = array_values($pkCols);
 
+    // Build a lookup: column name → referenced (table, column) for this table.
+    $fkByCol = [];
+    foreach ($fks as $fk) {
+        $fkByCol[$fk['from']] = ['table' => $fk['table'], 'column' => $fk['to']];
+    }
+
     $lines = [];
     foreach ($cols as $c) {
         $name = $c['name'];
@@ -132,7 +155,20 @@ foreach ($tables as $table) {
         $isAutoPk = $autoIncrement && count($pkCols) === 1 && $pkCols[0] === $name && strtolower($type) === 'integer';
         $unsigned = $isAutoPk;
 
+        // If this column is a foreign key into an auto-increment PK column,
+        // it must be UNSIGNED to match — MySQL errno 150 otherwise.
+        $isUnsignedFk = false;
+        if (! $isAutoPk && isset($fkByCol[$name])) {
+            $ref = $fkByCol[$name];
+            if (isset($autoIncTables[$ref['table']]) && $autoIncTables[$ref['table']] === $ref['column']) {
+                $isUnsignedFk = true;
+            }
+        }
+
         $mysqlType = mapType($type, $isAutoPk, $unsigned);
+        if ($isUnsignedFk) {
+            $mysqlType = 'BIGINT UNSIGNED';
+        }
         $line = '    ' . escapeIdent($name) . ' ' . $mysqlType;
 
         if ($c['notnull']) {

@@ -1,5 +1,5 @@
 -- Blue Dine Cuisines — seeded database
--- Generated: 2026-04-23T17:52:28+00:00
+-- Generated: 2026-04-26T13:21:54+00:00
 -- MySQL 8.0 compatible. Import into a pre-created database.
 
 SET NAMES utf8mb4;
@@ -36,7 +36,7 @@ CREATE TABLE `blog_posts` (
     `excerpt` VARCHAR(255) NOT NULL,
     `body` TEXT NOT NULL,
     `cover_image` VARCHAR(255) NULL,
-    `author_id` BIGINT NOT NULL,
+    `author_id` BIGINT UNSIGNED NOT NULL,
     `category` VARCHAR(255) NOT NULL,
     `tags` TEXT NULL,
     `published_at` DATETIME NULL,
@@ -67,7 +67,7 @@ CREATE TABLE `bookings` (
     `name` VARCHAR(255) NOT NULL,
     `email` VARCHAR(255) NOT NULL,
     `phone` VARCHAR(255) NOT NULL,
-    `service_id` BIGINT NULL,
+    `service_id` BIGINT UNSIGNED NULL,
     `event_date` DATE NOT NULL,
     `event_time` TIME NOT NULL,
     `guests` BIGINT NOT NULL,
@@ -331,7 +331,7 @@ CREATE TABLE `password_reset_tokens` (
 DROP TABLE IF EXISTS `payments`;
 CREATE TABLE `payments` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
-    `booking_id` BIGINT NOT NULL,
+    `booking_id` BIGINT UNSIGNED NOT NULL,
     `gateway` VARCHAR(255) NOT NULL,
     `reference` VARCHAR(255) NOT NULL,
     `amount` DECIMAL(20,6) NOT NULL,
